@@ -1,25 +1,25 @@
 package main
 
-import "fmt"
+import "errors"
 
-type commands struct {
-	commands map[string]func(*state, command) error
+type command struct {
+	Name string
+	Args []string
 }
 
-func (c *commands) run(s *state, cmd command) error {
-	h, ok := c.commands[cmd.name]
-	if !ok {
-		return fmt.Errorf("non ecxiste")
-	}
-
-	err := h(s, cmd)
-	if err != nil {
-		return err
-	}
-
-	return nil
+type commands struct {
+	registeredCommands map[string]func(*state, command) error
 }
 
 func (c *commands) register(name string, f func(*state, command) error) {
-	c.commands[name] = f
+	c.registeredCommands[name] = f
+}
+
+func (c *commands) run(s *state, cmd command) error {
+	f, ok := c.registeredCommands[cmd.Name]
+	if !ok {
+		return errors.New("command not found")
+	}
+
+	return f(s, cmd)
 }

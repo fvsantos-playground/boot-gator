@@ -8,6 +8,10 @@ import (
 	"github.com/fvsantos-playground/boot-gator/internal/config"
 )
 
+type state struct {
+	cfg *config.Config
+}
+
 func main() {
 	cfg, err := config.Read()
 	if err != nil {
@@ -15,28 +19,24 @@ func main() {
 	}
 	fmt.Printf("Read config: %+v\n", cfg)
 
-	s := state{
-		config: &cfg,
+	programState := &state{
+		cfg: &cfg,
 	}
 
-	handlers := commands{
-		commands: make(map[string]func(*state, command) error),
+	cmds := commands{
+		registeredCommands: make(map[string]func(*state, command) error),
 	}
 
-	handlers.register("login", handlerLogin)
+	cmds.register("login", handlerLogin)
 
-	args := os.Args[1:]
-	if len(args) == 0 {
-		fmt.Println("No command provided")
-		os.Exit(1)
+	if len(os.Args) < 2 {
+		log.Fatal("Usage: cli <command> [args...]")
 	}
 
-	cmd := command{
-		name: args[0],
-		args: args[1:],
-	}
+	cmdName := os.Args[1]
+	cmdArgs := os.Args[2:]
 
-	if err := handlers.run(&s, cmd); err != nil {
-		os.Exit(1)
+	if err := cmds.run(programState, command{Name: cmdName, Args: cmdArgs}); err != nil {
+		log.Fatal(err)
 	}
 }
