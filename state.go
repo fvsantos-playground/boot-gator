@@ -1,7 +1,7 @@
-package commands
+package main
 
 import "github.com/fvsantos-playground/boot-gator/internal/config"
 
-type State struct {
+type state struct {
 	config *config.Config
 }
