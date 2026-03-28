@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/fvsantos-playground/boot-gator/internal/database"
@@ -16,12 +15,7 @@ func handlerRegister(s *state, cmd command) error {
 	}
 
 	name := cmd.Args[0]
-	user, err := s.db.GetUser(context.Background(), name)
-	if err == nil {
-		log.Fatalf("User '%s' already exists", name)
-	}
-
-	user, err = s.db.CreateUser(context.Background(), database.CreateUserParams{
+	user, err := s.db.CreateUser(context.Background(), database.CreateUserParams{
 		ID:        uuid.New(),
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
