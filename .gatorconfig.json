@@ -1,4 +1,1 @@
-{
-  "db_url": "postgres://gator:gator_pswd@192.168.1.27:42104/gator?sslmode=disable",
-  "current_user_name": "boots"
-}
+{"db_url":"postgres://gator:gator_pswd@192.168.1.27:42104/gator?sslmode=disable","current_user_name":"kahya"}
