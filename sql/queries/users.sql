@@ -12,5 +12,8 @@ RETURNING *;
 -- name: GetUser :one
 SELECT * FROM users WHERE name ILIKE $1;
 
+-- name: GetUsers :many
+SELECT * FROM users ORDER BY name ASC;
+
 -- name: ResetUsers :exec
 TRUNCATE TABLE users;
