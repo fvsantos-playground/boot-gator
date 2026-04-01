@@ -16,4 +16,4 @@ SELECT * FROM users WHERE name ILIKE $1;
 SELECT * FROM users ORDER BY name ASC;
 
 -- name: ResetUsers :exec
-TRUNCATE TABLE users;
+DELETE FROM users;
