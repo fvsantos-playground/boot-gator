@@ -10,7 +10,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}",
-      "args": ["addfeed", "Hacker News RSS", "https://hnrss.org/newest"]
+      "args": ["feeds"]
     }
   ]
 }
