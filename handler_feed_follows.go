@@ -8,12 +8,7 @@ import (
 	"github.com/fvsantos-playground/boot-gator/internal/database"
 )
 
-func handlerFollow(s *state, cmd command) error {
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return err
-	}
-
+func handlerFollow(s *state, cmd command, user database.User) error {
 	if len(cmd.Args) != 1 {
 		return fmt.Errorf("usage: %s <feed_url>", cmd.Name)
 	}
@@ -39,21 +34,7 @@ func handlerFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerListFeedFollows(s *state, cmd command) error {
-	// if len(cmd.Args) > 1 {
-	// 	return fmt.Errorf("usage: %s [user_name]", cmd.Name)
-	// }
-
-	// userName := s.cfg.CurrentUserName
-	// if len(cmd.Args) == 1 {
-	// 	userName = cmd.Args[0]
-	// }
-
-	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		return err
-	}
-
+func handlerListFeedFollows(s *state, cmd command, user database.User) error {
 	feedFollows, err := s.db.GetFeedFollowsForUser(context.Background(), user.ID)
 	if err != nil {
 		return fmt.Errorf("couldn't get feed follows: %w", err)
@@ -69,6 +50,29 @@ func handlerListFeedFollows(s *state, cmd command) error {
 		fmt.Printf("* %s\n", ff.FeedName)
 	}
 
+	return nil
+}
+
+func handlerUnfollow(s *state, cmd command, user database.User) error {
+	if len(cmd.Args) != 1 {
+		return fmt.Errorf("usage: %s <feed_url>", cmd.Name)
+	}
+
+	feedUrl := cmd.Args[0]
+	feedFollow, err := s.db.GetFeedFollowByUserAndFeedUrl(context.Background(), database.GetFeedFollowByUserAndFeedUrlParams{
+		UserID:  user.ID,
+		FeedUrl: feedUrl,
+	})
+	if err != nil {
+		return fmt.Errorf("couldn't get feed follow: %w", err)
+	}
+
+	err = s.db.DeleteFeedFollow(context.Background(), feedFollow.ID)
+	if err != nil {
+		return fmt.Errorf("couldn't delete feed follow: %w", err)
+	}
+
+	fmt.Println("Feed follow deleted successfully.")
 	return nil
 }
 
