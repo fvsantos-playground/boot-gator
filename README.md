@@ -37,6 +37,8 @@ goose up
 
 ### Reverter migrations
 
+Para reverter **apenas a última migration** aplicada (uma por vez):
+
 ```bash
 goose down
 ```

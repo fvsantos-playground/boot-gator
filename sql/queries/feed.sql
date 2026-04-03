@@ -5,3 +5,6 @@ RETURNING *;
 
 -- name: GetFeeds :many
 SELECT * FROM feeds_with_user ORDER BY created_at DESC;
+
+-- name: GetFeedByUrl :one
+SELECT * FROM feeds WHERE url = $1;
