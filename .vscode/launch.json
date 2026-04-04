@@ -10,7 +10,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}",
-      "args": ["follow", "https://hnrss.org/newest"]
+      "args": ["agg"]
     }
   ]
 }
