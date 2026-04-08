@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/fvsantos-playground/boot-gator/internal/database"
@@ -66,36 +68,41 @@ func scrapeFeed(db *database.Queries, feed database.Feed) {
 	}
 
 	for _, item := range feedData.Channel.Item {
-		fmt.Printf("Found post: %s\n", item.Title)
+		savePosts(db, feed, item)
 	}
+
 	log.Printf("Feed %s collected, %v posts found", feed.Name, len(feedData.Channel.Item))
 }
 
-// func savePosts(s *state, rss *RSSFeed, feed database.Feed) error {
-// 	for _, post := range rss.Channel.Item {
-// 		p, perr := time.Parse(time.RFC1123Z, post.PubDate)
-// 		newPost, err := s.db.CreatePost(context.Background(), database.CreatePostParams{
-// 			Title: post.Title,
-// 			Url:   post.Link,
-// 			Description: sql.NullString{
-// 				String: post.Description,
-// 				Valid:  len(post.Description) > 0},
-// 			PublishedAt: sql.NullTime{
-// 				Time:  p,
-// 				Valid: perr == nil,
-// 			},
-// 			FeedID:    feed.ID,
-// 			CreatedAt: time.Now(),
-// 			UpdatedAt: time.Now(),
-// 		})
-// 		if err != nil {
-// 			fmt.Printf("Error saving post: %v\n", err)
-// 		} else {
-// 			fmt.Printf("Saved post: %s\n", newPost.Title)
-// 		}
-// 	}
-// 	return nil
-// }
+func savePosts(db *database.Queries, feed database.Feed, post RSSItem) {
+	publishedAt := sql.NullTime{}
+	if t, err := time.Parse(time.RFC1123Z, post.PubDate); err == nil {
+		publishedAt = sql.NullTime{
+			Time:  t,
+			Valid: true,
+		}
+	}
+
+	_, err := db.CreatePost(context.Background(), database.CreatePostParams{
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		FeedID:    feed.ID,
+		Title:     post.Title,
+		Description: sql.NullString{
+			String: post.Description,
+			Valid:  true,
+		},
+		Url:         post.Link,
+		PublishedAt: publishedAt,
+	})
+	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+			return
+		}
+		log.Printf("Couldn't create post: %v", err)
+		return
+	}
+}
 
 // func printRSS(rss *RSSFeed) {
 // 	fmt.Printf("Title: %s\n", rss.Channel.Title)
